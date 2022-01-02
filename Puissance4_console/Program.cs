@@ -112,36 +112,45 @@ namespace Puissance4_console
             return saisie_convertie;
         }
 
-        //Fonction qui permet au joueurs de jouer
+        //Fonction du jeu
         static void Jouer(ref bool turn, ref string[,] tableau, ref bool victoire)
         {
-            int colonne = SaisieInt("Entrez le numéro de la colonne", 1, 7) - 1;
+            //Le joueur saisie la colonne manuellement
+            //int colonne = SaisieInt("Entrez le numéro de la colonne", 1, 7) - 1;
 
+            //Le joueur choisi la colonne avec les flèches
+            int colonne = 0;
+            choixcolonnefleche(ref colonne);
+            
+            //Verifie si la colonne est pleine
             while (ColonnePleine(tableau, colonne))
             {
                 Console.WriteLine("La colonne est pleine, choisissez en une autre");
-                colonne = SaisieInt("Entrez le numéro de la colonne", 1, 7) - 1;
+                //colonne = SaisieInt("Entrez le numéro de la colonne", 1, 7) - 1;
+                choixcolonnefleche(ref colonne);
             }
 
+            //Change le X et O à chaque tour
+            string XouO;
+
+            if (turn)
+            {
+                XouO = "X";
+            }
+            else
+            {
+                XouO = "O";
+            }
+
+            //Met le X ou O le plus bas possible dans la colonne
             for (int i = 0; i < tableau.GetLength(0); i++)
             {
-                if ((i == (tableau.GetLength(0)-1) && tableau[i, colonne] == " ") || tableau[i + 1, colonne] != " ")
+                if (i == (tableau.GetLength(0)-1) || tableau[i + 1, colonne] != " ")
                 {
-                    if (turn)
-                    {
-                        tableau[i, colonne] = "X";
-                        victoire = Win(i, colonne, tableau);
-                        turn = !turn;
-                        break;
-                    }
-                    else
-                    {
-                        tableau[i, colonne] = "O";
-                        victoire = Win(i, colonne, tableau);
-                        turn = !turn;
-                        break;
-                    }
-                    
+                    tableau[i, colonne] = XouO;
+                    victoire = Win(i, colonne, tableau);
+                    turn = !turn;
+                    break;
                 }
                 
             }
@@ -187,36 +196,10 @@ namespace Puissance4_console
                     break;
                 }
             }
-
-            for (int i = 1; i < 4; i++)
+            
+            if (score_win(ref score, tableau, x, y))
             {
-                if (!(x - i < 0))
-                {
-                    if (tableau[x - i, y] == tableau[x, y])
-                    {
-                        score++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (score >= 4)
-            {
-                Console.Clear();
-                Console.WriteLine($"Victoire des {tableau[x, y]}");
                 return true;
-            }
-            else
-            {
-                score = 1;
             }
 
             //victoire horizontale
@@ -260,17 +243,11 @@ namespace Puissance4_console
 
             }
 
-            if (score >= 4)
+            if (score_win(ref score, tableau, x, y))
             {
-                Console.Clear();
-                Console.WriteLine($"Victoire des {tableau[x, y]}");
                 return true;
             }
-            else
-            {
-                score = 1;
-            }
-            
+
             // diagonale \
             for (int i = 1; i < 4; i++)
             {
@@ -310,15 +287,9 @@ namespace Puissance4_console
                 }
             }
 
-            if (score >= 4)
+            if (score_win(ref score, tableau, x, y))
             {
-                Console.Clear();
-                Console.WriteLine($"Victoire des {tableau[x, y]}");
                 return true;
-            }
-            else
-            {
-                score = 1;
             }
 
             // diagonale /
@@ -360,21 +331,62 @@ namespace Puissance4_console
                     break;
                 }
             }
-
-            if (score >= 4)
+            
+            if (score_win(ref score, tableau, x, y))
             {
-                Console.Clear();
-                Console.WriteLine($"Victoire des {tableau[x, y]}");
                 return true;
-            }
-            else
-            {
-                score = 1;
             }
 
 
             return false;
             
+        }
+
+        //Fonction qui verifie si il y a une victoire grâce au score dans la fonction win
+        static bool score_win(ref int score, string[,] tableau, int x, int y)
+        {
+            if (score >= 4)
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"Victoire des {tableau[x, y]}");
+                Console.ResetColor();
+                return true;
+            }
+            else
+            {
+                score = 1;
+                return false;
+            }
+        }
+
+        //Fonction qui permet aux joueurs de choisir la colonne avec les fleches
+        static void choixcolonnefleche(ref int colonne)
+        {
+            int cursor_x = 1;
+            ConsoleKeyInfo key;
+            Console.SetCursorPosition(cursor_x, 7);
+
+            do
+            {
+                key = Console.ReadKey();
+
+                if (key.Key == ConsoleKey.LeftArrow && colonne > 0)
+                {
+                    colonne--;
+                    cursor_x -= 2;
+                    Console.SetCursorPosition(cursor_x, 7);
+
+                }
+
+                if (key.Key == ConsoleKey.RightArrow && colonne < 6)
+                {
+                    colonne++;
+                    cursor_x += 2;
+                    Console.SetCursorPosition(cursor_x, 7);
+                }
+
+            } while (key.Key != ConsoleKey.Enter);
         }
     }
 }
