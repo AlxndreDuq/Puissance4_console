@@ -337,6 +337,10 @@ namespace Puissance4_console
                 return true;
             }
 
+            if (egalite(tableau))
+            {
+                return true;
+            }
 
             return false;
             
@@ -387,6 +391,24 @@ namespace Puissance4_console
                 }
 
             } while (key.Key != ConsoleKey.Enter);
+        }
+
+        static bool egalite(string[,] tableau)
+        {
+            for (int i = 0; i < tableau.GetLength(0); i++)
+            {
+                if (!ColonnePleine(tableau, i))
+                {
+                    return false;
+                }
+            }
+
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Égalité");
+            Console.ResetColor();
+
+            return true;
         }
     }
 }
